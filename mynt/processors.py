@@ -149,11 +149,16 @@ class Reader(object):
         frontmatter.pop('url', None)
         frontmatter['slug'] = text
 
-        content = parser.parse(self._writer.from_string(bodymatter, frontmatter))
+        result = parser.parse(self._writer.from_string(bodymatter, frontmatter))
+
+        content, toc = result if isinstance(result, tuple) else (result, None)
 
         item['content'] = content
         item['date'] = date.strftime(self.site['date_format']).decode('utf-8')
         item['timestamp'] = timegm(date.utctimetuple())
+
+        if toc is not None:
+            item['toc'] = toc
 
         if simple:
             item['url'] = Url.from_path(f.root.path.replace(self.src.path, ''), text)
